@@ -47,15 +47,23 @@ exports.deleteNote = async (req, res, next) => {
   const noteId = req.body.noteId;
   const userId = req.userId;
   try {
+
+    // const noteFound = await Note.findById(noteId);
+    // if (noteFound?.userId.toString() !== id) {
+    //     const error = new Error("Not Authorized to do this action.");
+    //     error.statusCode = 403;
+    //     throw error;
+    // }
+
     const note = await Note.findById(noteId);
-    // console.log(note)
+    
     if (!note) {
       const error = new Error("Note Not Found");
       error.statusCode = 404;
       throw error;
     }
    
-    if (note.userId !== userId) {
+    if (note.userId.toString() !== userId) {
       const error = new Error( "you re not the creator,you cant delete this note",);
       error.statusCode = 404;
       throw error;

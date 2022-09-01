@@ -7,7 +7,6 @@ const createNote = Joi.object({
   content: Joi.string().not().empty().required(),
   categoryId: Joi.objectId().not().empty().required(),
   tags: Joi.array(),
-  userId : Joi.objectId().not().empty().required(),
 });
 
 const deleteNote = Joi.object({

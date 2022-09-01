@@ -48,14 +48,14 @@ exports.deleteNote = async (req, res, next) => {
   const userId = req.userId;
   try {
     const note = await Note.findById(noteId);
-    // console.log(note)
+    console.log(note)
     if (!note) {
       const error = new Error("Note Not Found");
       error.statusCode = 404;
       throw error;
     }
    
-    if (note.userId !== userId) {
+    if (note.userId.toString() !== userId) {
       const error = new Error( "you re not the creator,you cant delete this note",);
       error.statusCode = 404;
       throw error;

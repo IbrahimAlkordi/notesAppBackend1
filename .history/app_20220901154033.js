@@ -46,6 +46,3 @@ mongoose
     console.log("database connecting and running")
   })
   .catch((err) => console.log(err));
-
-
-  

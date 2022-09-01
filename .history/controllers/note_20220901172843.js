@@ -45,29 +45,8 @@ exports.createNote = async (req, res, next) => {
 
 exports.deleteNote = async (req, res, next) => {
   const noteId = req.body.noteId;
-  const userId = req.userId;
   try {
-    const note = await Note.findById(noteId);
-    // console.log(note)
-    if (!note) {
-      const error = new Error("Note Not Found");
-      error.statusCode = 404;
-      throw error;
-    }
-   
-    if (note.userId !== userId) {
-      const error = new Error( "you re not the creator,you cant delete this note",);
-      error.statusCode = 404;
-      throw error;
-    }
-    
     const result = await Note.deleteOne({ id: noteId });
-if(result.deletedCount===0){
-  const error = new Error( "cant delete,note not found",);
-      error.statusCode = 404;
-      throw error;
-}
-
     res.status(200).json({
       message: "Note Deleted Successfuly",
       result: result,
@@ -86,24 +65,19 @@ exports.updateNote = async (req, res, next) => {
   const content = req.body.content;
   const categoryId = req.body.categoryId;
   const tags = req.body.tags;
-  const userId = req.userId;
- 
   try {
-
-    const note = await Note.findById(noteId);
-    if (!note) {
+    const noteFound = await Note.findById(noteId);
+    if (!noteFound) {
       const error = new Error("Note Not Found");
       error.statusCode = 404;
       throw error;
     }
-
-    if (note.userId !== userId) {
-      const error = new Error( "you re not the creator,you cant update this note",);
-      error.statusCode = 404;
-      throw error;
-    }
-    
-  
+    // const categoryFound = await Category.findById(categoryId);
+    // if (!categoryFound) {
+    //   const error = new Error("Category Id Not Found");
+    //   error.statusCode = 404;
+    //   throw error;
+    // }
     const result = await Note.updateOne(
       { _id: noteId },
       {
@@ -112,6 +86,7 @@ exports.updateNote = async (req, res, next) => {
           content: content,
           categoryId: categoryId,
           tags: tags,
+          
         },
       }
     );
@@ -131,21 +106,13 @@ exports.updateNote = async (req, res, next) => {
 exports.getNoteById = async (req, res, next) => {
   try {
     const noteId = req.params.noteId;
-    const userId = req.userId;
-
-
     const note = await Note.findById(noteId);
     if (!note) {
       const error = new Error("Note Not Found pleaze check the id");
       error.statusCode = 404;
       throw error;
     }
-    if (note.userId !== userId) {
-      const error = new Error( "you re not the creator,you cant view this note",);
-      error.statusCode = 404;
-      throw error;
-    }
-    
+
     res.status(200).json({
       message: "found this Note with this id  " + noteId,
       note: note,
@@ -166,76 +133,74 @@ exports.getNotes = async (req, res, next) => {
   const user = await User.findById(userId);
   let note;
   try {
-    if (categoryId && !tags) {
-      note = await Note.aggregate([
-        { $match: { categoryId: mongoose.Types.ObjectId(categoryId) } },
-        { $match: { userId: mongoose.Types.ObjectId(userId) } },
-        { $sort: { updatedAt: -1 } },
-      ]);
-      if (note.length === 0) {
-        res.status(200).json({
-          message: "no notes available",
-        });
-      }
+    if (categoryId && !tags){
+     note = await Note.aggregate([
+      {$match : {categoryId: mongoose.Types.ObjectId(categoryId)}},
+      {$match : {userId: mongoose.Types.ObjectId(userId)}},
+      {$sort : {updatedAt: -1}}
+    ]);
+    if(note.length===0){
       res.status(200).json({
-        message: "Notes filtered by categoryId( " + categoryId + " )",
-        note: note,
+        message: "no notes available",
       });
     }
-    if (tags && !categoryId) {
-      note = await Note.aggregate([
-        { $match: { tags: { $in: [tags] } } },
-        { $match: { userId: mongoose.Types.ObjectId(userId) } },
-        { $sort: { updatedAt: -1 } },
-      ]);
-      if (note.length === 0) {
-        res.status(200).json({
-          message: "no notes available",
-        });
-      }
-      res.status(200).json({
-        message: "Notes filtered by tags name( " + tags + " )",
-        note: note,
-      });
-    }
-    if (tags && categoryId) {
-      note = await Note.aggregate([
-        { $match: { tags: { $in: [tags] } } },
-        { $match: { categoryId: mongoose.Types.ObjectId(categoryId) } },
-        { $match: { userId: mongoose.Types.ObjectId(userId) } },
-        { $sort: { updatedAt: -1 } },
-      ]);
+    res.status(200).json({
+      message: "Notes filtered by categoryId( " + categoryId + " )",
+      note: note,
+    });
+}
+if (tags && !categoryId ){
+  note = await Note.aggregate([
+   {$match : {tags: {$in : [tags]}}},
+   {$match : {userId: mongoose.Types.ObjectId(userId)}},
+   {$sort : {updatedAt: -1}}
+   
+ ]);
+ if(note.length===0){
+  res.status(200).json({
+    message: "no notes available",
+  });
+}
+ res.status(200).json({
+   message: "Notes filtered by tags name( " + tags + " )",
+   note: note,
+ });;
+}
+if (tags && categoryId ){
+  note = await Note.aggregate([
+   {$match : {tags: {$in : [tags]}}},
+   {$match : {categoryId: mongoose.Types.ObjectId(categoryId)}},
+   {$match : {userId: mongoose.Types.ObjectId(userId)}},
+   {$sort : {updatedAt: -1}}
+   
+ ]);
 
-      if (note.length === 0) {
-        res.status(200).json({
-          message: "no notes available",
-        });
-      }
-      res.status(200).json({
-        message:
-          "Notes filtered by tagsName(" +
-          tags +
-          ") and categoryId(" +
-          categoryId +
-          ")",
-        note: note,
-      });
-    }
-    if (!tags && !categoryId) {
-      note = await Note.aggregate([
-        { $match: { userId: mongoose.Types.ObjectId(userId) } },
-        { $sort: { updatedAt: -1 } },
-      ]);
-      if (note.length === 0) {
-        res.status(200).json({
-          message: "no notes available",
-        });
-      }
-      res.status(200).json({
-        message: "all notes for the user " + user.name,
-        note: note,
-      });
-    }
+ if(note.length===0){
+  res.status(200).json({
+    message: "no notes available",
+  });
+}
+ res.status(200).json({
+   message: "Notes filtered by tagsName(" + tags + ") and categoryId(" + categoryId + ")",
+   note: note,
+ });;
+}
+if (!tags && !categoryId ){
+  note = await Note.aggregate([
+    {$match : {userId: mongoose.Types.ObjectId(userId)}},
+   {$sort : {updatedAt: -1}}
+ ]);
+ if(note.length===0){
+  res.status(200).json({
+    message: "no notes available",
+  });
+}
+ res.status(200).json({
+   message: "all notes for the user " + user.name ,
+   note: note,
+ });;
+}
+   
   } catch (err) {
     if (!err.statusCode) {
       err.statusCode = 500;
@@ -243,3 +208,4 @@ exports.getNotes = async (req, res, next) => {
     next(err);
   }
 };
+

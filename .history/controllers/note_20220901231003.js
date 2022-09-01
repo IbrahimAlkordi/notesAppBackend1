@@ -47,8 +47,9 @@ exports.deleteNote = async (req, res, next) => {
   const noteId = req.body.noteId;
   const userId = req.userId;
   try {
+
     const note = await Note.findById(noteId);
-    // console.log(note)
+    
     if (!note) {
       const error = new Error("Note Not Found");
       error.statusCode = 404;
@@ -62,12 +63,6 @@ exports.deleteNote = async (req, res, next) => {
     }
     
     const result = await Note.deleteOne({ id: noteId });
-if(result.deletedCount===0){
-  const error = new Error( "cant delete,note not found",);
-      error.statusCode = 404;
-      throw error;
-}
-
     res.status(200).json({
       message: "Note Deleted Successfuly",
       result: result,

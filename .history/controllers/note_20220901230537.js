@@ -45,29 +45,27 @@ exports.createNote = async (req, res, next) => {
 
 exports.deleteNote = async (req, res, next) => {
   const noteId = req.body.noteId;
-  const userId = req.userId;
+  const userId = req.body.userId;
   try {
+
     const note = await Note.findById(noteId);
-    // console.log(note)
+    
     if (!note) {
       const error = new Error("Note Not Found");
       error.statusCode = 404;
       throw error;
     }
    
-    if (note.userId !== userId) {
+    if (Note.userId !== userId) {
       const error = new Error( "you re not the creator,you cant delete this note",);
       error.statusCode = 404;
       throw error;
     }
     
-    const result = await Note.deleteOne({ id: noteId });
-if(result.deletedCount===0){
-  const error = new Error( "cant delete,note not found",);
-      error.statusCode = 404;
-      throw error;
-}
 
+
+
+    const result = await Note.deleteOne({ id: noteId });
     res.status(200).json({
       message: "Note Deleted Successfuly",
       result: result,
@@ -86,23 +84,17 @@ exports.updateNote = async (req, res, next) => {
   const content = req.body.content;
   const categoryId = req.body.categoryId;
   const tags = req.body.tags;
-  const userId = req.userId;
  
   try {
 
-    const note = await Note.findById(noteId);
-    if (!note) {
+   
+
+    const noteFound = await Note.findById(noteId);
+    if (!noteFound) {
       const error = new Error("Note Not Found");
       error.statusCode = 404;
       throw error;
     }
-
-    if (note.userId !== userId) {
-      const error = new Error( "you re not the creator,you cant update this note",);
-      error.statusCode = 404;
-      throw error;
-    }
-    
   
     const result = await Note.updateOne(
       { _id: noteId },
@@ -131,7 +123,6 @@ exports.updateNote = async (req, res, next) => {
 exports.getNoteById = async (req, res, next) => {
   try {
     const noteId = req.params.noteId;
-    const userId = req.userId;
 
 
     const note = await Note.findById(noteId);
@@ -140,12 +131,7 @@ exports.getNoteById = async (req, res, next) => {
       error.statusCode = 404;
       throw error;
     }
-    if (note.userId !== userId) {
-      const error = new Error( "you re not the creator,you cant view this note",);
-      error.statusCode = 404;
-      throw error;
-    }
-    
+
     res.status(200).json({
       message: "found this Note with this id  " + noteId,
       note: note,
