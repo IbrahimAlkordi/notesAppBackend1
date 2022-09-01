@@ -13,13 +13,19 @@ router.post(
   categoryController.createCategory
 );
 
-router.get("/:categoryId", isAuth, categoryController.getCategoryById);
+router.get(
+  "/:categoryId",
+  isAuth,
+  validate(catValidation.getCategoryById, {}, { abortEarly: false }),
+  categoryController.getCategoryById
+);
+
 router.get(
   "/",
   isAuth,
-  validate(catValidation.getCategoryById, {}, { abortEarly: false }),
   categoryController.getCategories
 );
+
 router.put(
   "/:categoryId",
   isAuth,
@@ -32,6 +38,5 @@ router.delete(
   validate(catValidation.deleteCategory, {}, { abortEarly: false }),
   categoryController.deleteCategory
 );
-
 
 module.exports = router;

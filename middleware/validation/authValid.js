@@ -8,25 +8,9 @@ const loginValidation = Joi.object({
 
 
 const signupValidation = Joi.object({
-  email: Joi.string()
-    .email().message("Please enter a valid email.")
-    .custom((value, { req }) => {
-      return User.findOne({ email: value }).then((userDoc) => {
-        if (userDoc) {
-          return Promise.reject("E-Mail address already exists!");
-        }
-      });
-    })
-    .required().error(err=>{
-      console.log(err[0].code)
-    })
-    .normalize(),
-  password: Joi.string().trim().min(8).required().error(err=>{
-    console.log(err[0].code)
-  }),
-  name: Joi.string().trim().not().empty().required().error(err=>{
-    console.log(err[0].code)
-  }),
+  email: Joi.string().email().normalize().required(),
+  password: Joi.string().trim().min(8).required(),
+  name: Joi.string().trim().not().empty().required()
 });
 
 

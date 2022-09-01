@@ -9,14 +9,14 @@ const noteSchema = new Schema({
   content: {
     type: String,
   },
-  tags: [{ type: mongoose.Schema.Types.ObjectId, ref: "Tag" }],
+  tags: [{ type: String, ref: "Tag" }],
 
-  categoryID: {
+  categoryId: {
     type: mongoose.Schema.Types.ObjectId,
     ref: "Category",
   },
 
-  userID: {
+  userId: {
     type: mongoose.Schema.Types.ObjectId,
     ref: "User",
   },
@@ -24,14 +24,13 @@ const noteSchema = new Schema({
     type: Date,
     default: Date.now(),
   },
-});
-//index for getNotes
-noteSchema.index({ category: -1, creatorID: -1, tags: -1 });
-noteSchema.index({ creatorID: -1, tags: -1 });
-noteSchema.index({ category: -1, creatorID: -1 });
-//compund schema index for aggregation
-noteSchema.index({
-  creatorID: -1,
-  creatorName: -1,
-});
+  
+}, { timestamps: true });
+
+// noteSchema.index({ categoryId: -1, userId: -1, tags: -1 });
+// noteSchema.index({ userId: -1, tags: -1 });
+// noteSchema.index({ categoryId: -1, userId: -1 });
+
+
+
 module.exports = mongoose.model("Note", noteSchema);

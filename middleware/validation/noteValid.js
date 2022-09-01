@@ -3,25 +3,30 @@ const { Joi } = require("express-validation");
 Joi.objectId = require("joi-objectid/index")(Joi);
 
 const createNote = Joi.object({
-  title: Joi.string().not().empty().required().error(err=>{
-    console.log(err[0].code)
-  }),
-  content: Joi.string().not().empty().required().error(err=>{
-    console.log(err[0].code)
-  }),
-  categoryID: Joi.objectId(),
-  tags: Joi.array().items(Joi.objectId()),
+  title: Joi.string().not().empty().required(),
+  content: Joi.string().not().empty().required(),
+  categoryId: Joi.objectId().not().empty().required(),
+  tags: Joi.array(),
 });
 
 const deleteNote = Joi.object({
   noteId: Joi.objectId().required(),
 });
 
-// const updateNote = Joi.object({
-//   title: Joi.string().not().empty().required(),
-//   content: Joi.string().not().empty().required(),
-// });
+const updateNote = Joi.object({
+  title: Joi.string().not().empty(),
+  content: Joi.string().not().empty(),
+  categoryId :Joi.objectId(),
+  tags: Joi.array(),
+});
 
+const getNoteById = Joi.object({
+  noteId: Joi.objectId().required(),
+});
+const getNotes = Joi.object({
+  categoryId: Joi.objectId(),
+  tags : Joi.string(),
+});
 module.exports = {
   createNote: {
     body: createNote,
@@ -29,7 +34,13 @@ module.exports = {
   deleteNote: {
     body: deleteNote,
   },
-  // updateNote: {
-  //   body: updateNote,
-  // },
+  updateNote: {
+    body: updateNote,
+  },
+  getNoteById: {
+    params: getNoteById,
+  },
+  getNotes: {
+    params: getNotes,
+  },
 };

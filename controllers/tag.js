@@ -6,12 +6,12 @@ exports.createTag = async (req, res, next) => {
     
     const id = req.userId;
     const name = req.body.name;
-    
+    try {
     const tag = new Tag({
         name: name, 
         createdBy: id, 
     });
-    try {
+    
         const tagResult = await tag.save();
         const user = await User.findById(id);
         const userResult = await user.save();

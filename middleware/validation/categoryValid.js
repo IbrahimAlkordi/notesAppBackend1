@@ -14,6 +14,7 @@ const getCategoryById = Joi.object({
 const updateCategory = Joi.object({
   name: Joi.string().not().empty().required(),
 });
+
 const deleteCategory = Joi.object({
   categoryId: Joi.objectId().required(),
 });
